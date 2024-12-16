@@ -1,6 +1,8 @@
 package com.example.altenTestBackend.config;
 
 
+import com.example.altenTestBackend.model.User;
+import com.example.altenTestBackend.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
@@ -21,6 +24,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -33,19 +39,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwt != null && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUsernameFromToken(jwt);
-                System.out.println(username +" usseeeeer");
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()
-                        );
+                // Only proceed if the user exists
+                Optional<User> userOptional = userRepository.findByEmail(username);
+                if (userOptional.isPresent()) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);

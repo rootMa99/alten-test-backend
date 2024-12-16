@@ -48,7 +48,6 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Check if product already in cart
         for (CartItem item : cart.getItems()) {
             if (item.getProduct().getId().equals(productId)) {
                 item.setQuantity(item.getQuantity() + quantity);
@@ -56,7 +55,6 @@ public class CartService {
             }
         }
 
-        // If not in cart, add new item
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
         cartItem.setQuantity(quantity);

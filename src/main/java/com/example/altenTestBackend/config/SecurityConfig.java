@@ -31,9 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Public routes
                         .requestMatchers("/account", "/token").permitAll()
-                        // Restrict /products and /products/** to the specific user
                         .requestMatchers("/products", "/products/**")
                         .access((authentication, request) ->
                                 new AuthorizationDecision(
@@ -41,10 +39,8 @@ public class SecurityConfig {
                                                 "admin@admin.com".equals(authentication.get().getName())
                                 )
                         )
-                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
-                // Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

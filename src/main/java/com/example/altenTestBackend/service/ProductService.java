@@ -23,8 +23,8 @@ public class ProductService {
     }
 
     public Product createProduct(Product product) {
-        product.setCreatedAt(Instant.ofEpochSecond(Instant.now().toEpochMilli()));
-        product.setUpdatedAt(Instant.ofEpochSecond(Instant.now().toEpochMilli()));
+        product.setCreatedAt(Instant.now());
+        product.setUpdatedAt(Instant.now());
         return productRepository.save(product);
     }
 
@@ -32,13 +32,11 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Update only non-null fields
         if (productDetails.getName() != null) product.setName(productDetails.getName());
         if (productDetails.getDescription() != null) product.setDescription(productDetails.getDescription());
         if (productDetails.getPrice() != null) product.setPrice(productDetails.getPrice());
-        // Add more fields as needed
 
-        product.setUpdatedAt(Instant.ofEpochSecond(Instant.now().toEpochMilli()));
+        product.setUpdatedAt(Instant.now());
         return productRepository.save(product);
     }
 

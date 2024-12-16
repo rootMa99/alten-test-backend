@@ -32,11 +32,6 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                user.getEmail(), user.getPassword()
-        );
-
-        return jwtTokenProvider.generateToken(String.valueOf(authentication));
+        return jwtTokenProvider.generateToken(user.getEmail());
     }
 }
